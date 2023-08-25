@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>Posts</h1>
+    {% for post in posts %}
+    <p>----</p>
+    <p>{{ post.pk }}</p>
+    <p>{{ post.title }}</p>
+    <p>{{ post.content }}</p>
+    <p>by {{ post.author.name }}</p>
+    <p>Дата: {{ post.created_at.date }}</p>
+    {% endfor %}
+    <div class="paginator">
+        <span class="step-link">
+            {% if page_obj.has_previous %}
+            <a href="?page=1">first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <p>{{ page_obj.page }} of {{ paginator.num_page }}</p>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last</a>
+            {% endif %}
+        </span>
+    </div>
+</body>
+</html>

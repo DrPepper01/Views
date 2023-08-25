@@ -5,14 +5,12 @@
     <title>Title</title>
 </head>
 <body>
-    <h1>Posts</h1>
-    {% for post in posts %}
+    <h1>Post</h1>
     <p>----</p>
     <p>{{ post.pk }}</p>
     <p>{{ post.title }}</p>
     <p>{{ post.content }}</p>
-    <p>by {{ post.author.name }}</p>
-    <p>Дата: {{ post.created_at.date }}</p>
-    {% endfor %}
+    <p>{{ post.author.name }}</p>
+
 </body>
 </html>
