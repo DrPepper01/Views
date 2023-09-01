@@ -6,12 +6,82 @@ from django.views import View
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+
+
+class CreateCategoryView(CreateView):
+    model = Category
+    fields = '__all__'
+    template_name = 'views_app/form_category.html'
+    success_url = '/category/'
+
+
+class DeleteCategoryView(DeleteView):
+    model = Category
+    fields = '__all__'
+    template_name = 'views_app/form_category.html'
+    success_url = '/category/'
+
+
+class UpdateCategoryView(UpdateView):
+    model = Category
+    fields = '__all__'  # ['name', 'bio']
+    success_url = '/category/{id}/detail'
+    template_name = 'views_app/form_category.html'
+    context_object_name = 'form_category'
+    # pk_url_kwarg = 'pk'  # default
+
+
+class CategoryList(ListView):
+    model = Category
+    context_object_name = 'categories'
+    template_name = 'views_app/category_list.html'
+
+
+class CategoryDetail(DetailView):
+    model = Category
+    context_object_name = 'category'
+    template_name = 'views_app/category_detail.html'
+
+
+# 31.08 Create View функционал
+class CreateAutorView(CreateView):  # modelFormMixin
+    model = Author
+    fields = '__all__'
+    template_name = 'views_app/form.html'
+    success_url = '/authors/{id}'
+
+
+class DeleteAuthorViews(DeleteView):
+    model = Author
+    template_name = 'views_app/form.html'
+    success_url = '/authors/'
+
+
+class UpdateAuthorView(UpdateView):
+    model = Author
+    fields = '__all__'  # ['name', 'bio']
+    success_url = '/authors/{id}'
+    template_name = 'views_app/form.html'
+    context_object_name = 'form'
+    pk_url_kwarg = 'pk'  # default
+
+
+class AuthorList(ListView):
+    model = Author
+    context_object_name = 'authors'
+
+
+class AuthorDetail(DetailView):
+    model = Author
+    context_object_name = 'author'
 
 
 class PostsView(ListView):
     model = Post
     paginate_by = 1
     context_object_name = 'posts'
+
     # template_name = 'views_app/post_list.html'
     # allow_empty: bool - предотвращает ошибку 404, если записей не существует
     # paginate_by: int - сколько записей будет выводиться на экран
@@ -45,8 +115,6 @@ class PostsById(DetailView):
     # pk_url_kwarg = 'pk'
     # template_name = 'views_app/post_detail.html'
     context_object_name = 'post'
-
-
 
 
 '''
