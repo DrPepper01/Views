@@ -1,10 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>{% block title %}My Site{% endblock %}</title>
 </head>
 <body>
-$END$
+    <nav>
+        <ul>
+            <li><a href="{% url 'main_page' %}">Home</a></li>
+            <li><a href="{% url 'author_list' %}">Authors</a></li>
+            <li><a href="{% url 'category_list' %}">Categories</a></li>
+            <li><a href="{% url 'post_list' %}">Posts</a></li>
+        </ul>
+    </nav>
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
 </body>
 </html>

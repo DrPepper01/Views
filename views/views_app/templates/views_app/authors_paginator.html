@@ -1,10 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'layouts/navbar.html' %}
+
+{% block title %}Authors{% endblock %}
+
+{% block content %}
+    <h1>Authors</h1>
+    {% for author in authors %}
+    <p>{{ author.pk }}</p>
+    <p>{{ author.name }}</p>
+    <p>{{ author.bio }}</p>
+    <p>{{ author.email }}</p>
+    {% for post in author.post_set.all %}
+    <p><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></p>
+    <p>{{ post.content }}</p>
+    {% endfor %}
+    {% endfor %}
+    <div class="paginator">
+        {% if page.has_previous %}
+        <a href="?page={{ page.previous_page_number }}">&lt;</a>
+        {% endif %}
+        Часть {{ page.number }} из {{ page.paginator.num_pages }}
+        {% if page.has_next %}
+        <a href="?page={{ page.next_page_number }}">&gt;</a>
+        {% endif %}
+    </div>
+{% endblock %}

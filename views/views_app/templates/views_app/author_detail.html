@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>{{ author.name }}</h1>
+{% extends 'layouts/navbar.html' %}
+
+{% block title %}Authors Detail{% endblock %}
+
+{% block content %}
+
     <p> {{ author.email }} </p>
     <p> {{ author.bio }} </p>
-</body>
-</html>
+    <p><a href="{% url 'author_detail' pk=author.pk %}">Authors Detail{{ author.name }}</a></p>
+    <p><a href="{% url 'author_update' pk=author.pk %}">Update</a></p>
+    <p><a href="{% url 'author_delete' pk=author.pk %}">Delete</a></p>
+{% endblock %}

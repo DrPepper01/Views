@@ -1,10 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Title</title>
 </head>
 <body>
-$END$
+    {% url 'author_list' as authors_url %}
+    <p>{{ authors_url }}</p>
+
+    {% for i in range %}
+    <p>Итерация {{ forloop.counter }} - Значение {{ i }}</p>
+    {% endfor %}
+    {% if first_condition %}
+        <p>Первое условие - Правда</p>
+    {% else %}
+        <p>Первое условие - не правда</p>
+    {% endif %}
+    {% if second_condition %}
+        <p>Второе условие - Правда</p>
+    {% else %}
+        <p>Второе условие - не правда</p>
+    {% endif %}
+    {% now 'SHORT_DATETIME_FORMAT' %}
 </body>
 </html>

@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'layouts/navbar.html' %}
+
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+    <h1>Главная страница</h1>
+    {% url 'post_list' as post_list_url %}
+    <p>{{ post_list_url }}</p>
+
+    {% for i in range %}
+    <p>Итерация {{ forloop.counter }} - Значение {{ i }}</p>
+    {% endfor %}
+    {% if first_condition %}
+    <p>First condition is {{ first_condition }}</p>
+    {% endif %}
+    {% if second_condition %}
+    <p>Second condition is {{ second_condition }}</p>
+    {% endif %}
+    <ul>
+        {{ ullist|unordered_list }}
+    </ul>
+    {% now 'SHORT_DATETIME_FORMAT' %}
+
+{% endblock %}
