@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseNotFound, HttpRequest
+from django.http import HttpResponse, HttpResponseNotFound, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest
 from .models import Author, Category, Post
 from django.shortcuts import get_object_or_404
 from django.template.loader import get_template
@@ -6,10 +6,14 @@ from django.views import View
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
 from django.views.generic import TemplateView
 from django.core.paginator import Paginator
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+
+from django.urls import reverse
+
+from . import forms
 
 
 class CreateCategoryView(CreateView):
@@ -123,7 +127,7 @@ class PostsView(ListView):
 
 class CreatePostView(CreateView): # modelformmixin
     model = Post
-    fields = ['title', 'author', 'content', 'categories', 'status']
+    form_class = forms.PostFormAlt
     template_name = 'views_app/form.html'
     success_url = '/posts/{id}'
 
@@ -232,3 +236,80 @@ def get_posts(request: HttpRequest):
     context = {'posts': published_posts}
     return HttpResponse(template.render(request=request, context=context))
 '''
+
+
+class UserRegistrationView(FormView):
+    template_name = 'views_app/form.html'
+    form_class = forms.UserRegistrationForm
+
+    def form_valid(self, form):
+        return HttpResponse('form valid')
+
+    def form_invalid(self, form):
+        return HttpResponse('form invalid')
+
+
+def add_record(requset: HttpRequest):
+    if requset.method == 'POST':
+        form = forms.SimpleForm(requset.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('category_list'))
+    elif requset.method == 'GET':
+        form = forms.SimpleForm
+        context = {'form': form}
+        return render(requset, 'views_app/form.html', context)
+    else:
+        return HttpResponseBadRequest()
+
+
+def update_category(request: HttpRequest, pk):
+    category = get_object_or_404(Category, pk=pk)
+    # try:
+    #     category = Category.objects.get(pk=pk) # Category.DoesNotExist
+    # except Category.DoesNotExist:
+    #     return HttpResponseBadRequest()
+    if request.method == 'POST':
+        form = forms.SimpleForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('category_detail', kwargs={'pk': pk}))
+        else:
+            return HttpResponseBadRequest()
+    elif request.method == 'GET':
+        form = forms.SimpleForm(instance=category)  # initial
+        context = {'form': form}
+        return render(request, 'views_app/form.html', context)
+    else:
+        return HttpResponseBadRequest
+
+
+def add_author(request: HttpRequest, pk):
+    author = get_object_or_404(Author, pk=pk)
+
+    if request.method == 'POST':
+        form = forms.AuthorForm(request.POST, instance=author)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('author_detail', kwargs={'pk': pk}))
+        else:
+            return HttpResponseBadRequest()
+    elif request.method == 'GET':
+        form = forms.AuthorForm(instance=author)
+        context = {'form': form}
+        return render(request, 'views_app/form.html', context)
+
+
+def add_author2(requset: HttpRequest):
+    if requset.method == 'POST':
+        form = forms.AuthorForm(requset.POST)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect(reverse('author_list'))
+    elif requset.method == 'GET':
+        form = forms.AuthorForm
+        context = {'form': form}
+        return render(requset, 'views_app/form.html', context)
+    else:
+        return HttpResponseBadRequest()
+
