@@ -18,5 +18,12 @@
         {% block content %}
         {% endblock %}
     </div>
+    <div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'user_logout' %}">Выйти с аккаунтa</a>
+        {% else %}
+        <a href="{% url 'user_login' %}">Вoйти в аккаунт</a>
+        {% endif %}
+    </div>
 </body>
 </html>

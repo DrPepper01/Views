@@ -1,7 +1,18 @@
 from django import forms
 from .models import Author, Post, Category
-from django.forms import modelform_factory
+from django.forms import modelform_factory, modelformset_factory
 from django.contrib.auth.models import User
+
+from captcha.fields import CaptchaField
+
+
+class CaptchaForm(forms.ModelForm):
+
+    captcha = CaptchaField()
+
+    class Meta:
+        model = Category
+        fields = '__all__'
 
 
 author_form = modelform_factory(Author, fields='__all__')
@@ -73,6 +84,7 @@ class AuthorForm(forms.ModelForm):
         fields = '__all__'
 
 
+Formset = modelformset_factory(Author, fields='__all__')
 
 
 

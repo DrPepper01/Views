@@ -1,6 +1,7 @@
-from django.http import HttpResponse, HttpResponseNotFound, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseNotFound, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest, \
+    request
 from .models import Author, Category, Post
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import get_template
 from django.views import View
 from django.views.generic.base import ContextMixin, TemplateResponseMixin, TemplateView
@@ -10,8 +11,11 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormVi
 from django.views.generic import TemplateView
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
+from django.apps import apps
+from django.contrib.auth.models import User
 
 from django.urls import reverse
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 
 from . import forms
 
@@ -64,10 +68,11 @@ class CreateAutorView(CreateView):  # modelFormMixin
         return context
 
 
-class DeleteAuthorViews(DeleteView):
+class DeleteAuthorViews(PermissionRequiredMixin, DeleteView):
     model = Author
     template_name = 'views_app/form.html'
     success_url = '/authors/'
+    permission_required = 'views_app.delete_author'
 
 
 class UpdateAuthorView(UpdateView):
@@ -132,17 +137,25 @@ class CreatePostView(CreateView): # modelformmixin
     success_url = '/posts/{id}'
 
 
-class DeletePostView(DeleteView):
+class DeletePostView(UserPassesTestMixin, DeleteView):
+    # login_url = 'accounts/login/'
+    # redirect_field_name = 'next'
     model = Post
     template_name = 'views_app/form.html'
     success_url = '/posts/'
 
+    def test_func(self):
+        return self.request.user == self.get_object().author.user or self.request.user.is_superuser
 
-class UpdatePostView(UpdateView):
+
+class UpdatePostView(UserPassesTestMixin, UpdateView):
     model = Post
     fields = ['title', 'author', 'content', 'categories', 'status']
     success_url = '/posts/{id}'
     template_name = 'views_app/form.html'
+
+    def test_func(self):
+        return self.request.user == self.get_object().author.user
 
 
 class PostList(ListView):
@@ -312,4 +325,42 @@ def add_author2(requset: HttpRequest):
         return render(requset, 'views_app/form.html', context)
     else:
         return HttpResponseBadRequest()
+
+
+def authors(request):
+    if request.method == 'POST':
+        formset = forms.Formset(request.POST)
+        if formset.is_valid():
+            formset.save()
+            return redirect('author_list')
+    else:
+        formset = forms.Formset()
+        context = {'formset': formset}
+        return render(request, 'views_app/authors_formset.html', context)
+
+
+class CaptchaView(FormView):
+    form_class = forms.CaptchaForm
+    template_name = 'views_app/form.html'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

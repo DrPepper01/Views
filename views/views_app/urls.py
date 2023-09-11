@@ -33,7 +33,40 @@ urlpatterns = [
     path('create_category/', views.add_record),
     path('<int:pk>/', views.update_category),
     path('add-author/<int:pk>', views.add_author),
-    path('authors/create/', views.add_author2)
+    path('authors/create/', views.add_author2),
+    path('authors_formset', views.authors),
+    path('captcha/', views.CaptchaView.as_view()),
+
 
 
 ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
