@@ -2,8 +2,26 @@ from django import forms
 from .models import Author, Post, Category
 from django.forms import modelform_factory, modelformset_factory
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
 from captcha.fields import CaptchaField
+
+
+class SignUpForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=False)
+    last_name = forms.CharField(max_length=30, required=False)
+    email = forms.EmailField(max_length=254)
+
+    class Meta:
+        model = User
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'password1',
+            'password2'
+        ]
 
 
 class CaptchaForm(forms.ModelForm):
@@ -85,6 +103,7 @@ class AuthorForm(forms.ModelForm):
 
 
 Formset = modelformset_factory(Author, fields='__all__')
+
 
 
 

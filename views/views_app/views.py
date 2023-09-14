@@ -14,24 +14,35 @@ from django.shortcuts import render, get_object_or_404
 from django.apps import apps
 from django.contrib.auth.models import User
 
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin, PermissionRequiredMixin
 
 from . import forms
+from ..accounts.forms import SignUpForm
 
 
-class CreateCategoryView(CreateView):
+class SignUpView(CreateView):
+    form_class = SignUpForm
+    success_url = reverse_lazy('main_page')
+    template_name = 'accounts/signup.html'
+
+
+class CreateCategoryView(UserPassesTestMixin, CreateView):
     model = Category
     fields = '__all__'
     template_name = 'views_app/form_category.html'
     success_url = '/category/'
 
+    def test_func(self):
+        return self.request.user.is_superuser
 
-class DeleteCategoryView(DeleteView):
+
+class DeleteCategoryView(PermissionRequiredMixin, DeleteView):
     model = Category
     fields = '__all__'
     template_name = 'views_app/form_category.html'
     success_url = '/category/'
+    permission_required = 'views_app.delete_category'
 
 
 class UpdateCategoryView(UpdateView):
@@ -43,7 +54,7 @@ class UpdateCategoryView(UpdateView):
     # pk_url_kwarg = 'pk'  # default
 
 
-class CategoryList(ListView):
+class CategoryList(LoginRequiredMixin, ListView):
     model = Category
     context_object_name = 'categories'
     template_name = 'views_app/category_list.html'
@@ -56,7 +67,7 @@ class CategoryDetail(DetailView):
 
 
 # 31.08 Create View функционал
-class CreateAutorView(CreateView):  # modelFormMixin
+class CreateAutorView(LoginRequiredMixin, CreateView):  # modelFormMixin
     model = Author
     fields = '__all__'
     template_name = 'views_app/form.html'
@@ -92,7 +103,7 @@ class UpdateAuthorView(UpdateView):
         return context
 
 
-class AuthorList(ListView):
+class AuthorList(LoginRequiredMixin, ListView):
     model = Author
     context_object_name = 'authors'
     paginate_by = 2

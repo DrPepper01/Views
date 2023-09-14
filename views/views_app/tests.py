@@ -1,10 +1,31 @@
 from django.test import TestCase
 from .models import Author, Category
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 
 from django.urls import reverse
-# Create your tests here.
 
+from django.apps import apps
+
+
+# class TestUser(TestCase):
+#
+#     def test_register_new_user(self):
+#         data = {
+#             'username': 'test_user',
+#             'password1': 'test_password',
+#             'password2': 'test_password',
+#             'email': 'test@test.com',
+#             'first_name': 'test_first_name',
+#             'last_name': 'test_last_name'
+#         }
+#
+#         response = self.client.post(reverse('user_register'), data=data)
+#
+#         self.assertEqual(response.status_code, 302)
+#         author_model = apps.get_model('views_app', 'Author')
+#         author = author_model.objects.get(name=data['username'])
+#         self.assertEqual(author.email, data['email'])
+#
 
 class AuthorViewTestCase(TestCase):
 
@@ -12,6 +33,14 @@ class AuthorViewTestCase(TestCase):
         self.username = 'test_user'
         self.password = 'test_password'
         self.user = User.objects.create_user(username=self.username, password=self.password)
+        self.superuser = User.objects.create_user(username='superuser', password='superuser',
+                                                  is_superuser=True)
+        self.user_with_permissions = User.objects.create_user(username='user_with_permissions',
+                                                              password='permissions')
+
+        perm = Permission.objects.get(codename='delete_author')
+        perm1 = Permission.objects.get(codename='delete_category')
+        self.user_with_permissions.user_permissions.add(perm, perm1)
 
     def test_author_list_view_user_logged_in(self):
         self.client.force_login(self.user)
@@ -25,6 +54,62 @@ class AuthorViewTestCase(TestCase):
         response = self.client.get(reverse('author_list'))
 
         self.assertEqual(response.status_code, 302)
+
+    def test_create_author(self):
+        self.client.force_login(self.superuser)
+
+        response = self.client.get(reverse('author_create'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'views_app/form.html')
+
+    def test_create_author_anonymous_user(self):
+        response = self.client.get(reverse('author_create'))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_create_author_post(self):
+        self.client.force_login(self.superuser)
+        author_name = 'test_author'
+        author_email = 'test@test.com'
+
+        response = self.client.post(reverse('author_create'),
+                                    data={'name': author_name,
+                                          'bio': 'test_bio',
+                                          'email': author_email})
+
+        self.assertEqual(response.status_code, 302)
+        Author.objects.get(email=author_email)
+
+    def test_delete_author_view(self):
+        author_email = 'test2@test.com'
+        new_author = Author.objects.create(name='test_author', bio='bio', email=author_email)
+        self.client.force_login(self.user_with_permissions)
+
+        response = self.client.post(reverse('author_delete', args=[new_author.pk]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Author.objects.filter(pk=new_author.pk).exists())
+
+    def test_create_category_view(self):
+        self.client.force_login(self.superuser)
+        category_name = 'test_name'
+
+        response = self.client.post(reverse('category_create'), data={'name': category_name,
+                                                                      'description': 'test_description'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Category.objects.filter(name=category_name).exists())
+
+    def test_delete_category_view(self):
+        category_name = 'test_name'
+        new_category = Category.objects.create(name=category_name, description='test_description')
+        self.client.force_login(self.user_with_permissions)
+
+        response = self.client.post(reverse('delete_category', args=[new_category.pk]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Category.objects.filter(name=category_name).exists())
 
 # class TestAuthor(TestCase):
 #
